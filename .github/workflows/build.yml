@@ -1,0 +1,86 @@
+name: build-termux-bazel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      BAZEL_VERSION: 6.3.0
+      ANDROID_API: "24"
+      ANDROID_ABI: aarch64-linux-android
+    steps:
+      - name: Install bootstrap dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential openjdk-17-jdk zip unzip patch python3
+
+      - name: Install Android NDK r27d
+        run: |
+          curl --fail --location --retry 3 \
+            --output /tmp/android-ndk.zip \
+            https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+          unzip -q /tmp/android-ndk.zip -d "$RUNNER_TEMP"
+          echo "ANDROID_NDK_HOME=$RUNNER_TEMP/android-ndk-r27d" >> "$GITHUB_ENV"
+          test -x "$RUNNER_TEMP/android-ndk-r27d/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang"
+
+      - name: Download official Bazel distribution archive
+        run: |
+          curl --fail --location --retry 3 \
+            --output bazel-${BAZEL_VERSION}-dist.zip \
+            https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip
+          unzip -q bazel-${BAZEL_VERSION}-dist.zip -d src
+          test -f src/compile.sh
+          test -d src/derived/src/java
+
+      - name: Bootstrap Android aarch64 Bazel
+        working-directory: src
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+          BAZEL_WRKDIR: ${{ github.workspace }}/work
+          CC: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          CXX: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++
+          AR: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          RANLIB: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
+          STRIP: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+          EXTRA_BAZEL_ARGS: >-
+            --host_javabase=@local_jdk//:jdk
+            --host_copt=--target=aarch64-linux-android24
+            --host_copt=-fPIE
+            --host_linkopt=--target=aarch64-linux-android24
+            --host_linkopt=-pie
+            --host_linkopt=-llog
+        run: |
+          set -o pipefail
+          ./compile.sh 2>&1 | tee ../bootstrap.log
+
+      - name: Verify Android ELF and minimize artifact
+        run: |
+          set -eux
+          BIN=src/output/bazel
+          test -x "$BIN"
+          file "$BIN"
+          readelf -h "$BIN" | tee elf-header.txt
+          readelf -l "$BIN" | tee elf-program-headers.txt
+          readelf -d "$BIN" | tee elf-dynamic.txt
+          readelf -h "$BIN" | grep -q 'AArch64'
+          readelf -l "$BIN" | grep -q '/system/bin/linker64'
+          "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" --strip-unneeded "$BIN"
+          mkdir artifact
+          cp "$BIN" artifact/bazel
+          cp elf-header.txt elf-program-headers.txt elf-dynamic.txt artifact/
+          sha256sum artifact/bazel | tee artifact/bazel.sha256
+
+      - name: Upload candidate and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bazel-${{ env.BAZEL_VERSION }}-termux-aarch64
+          path: |
+            artifact/
+            bootstrap.log
+          if-no-files-found: warn
