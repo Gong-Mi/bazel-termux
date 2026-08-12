@@ -67,6 +67,21 @@ jobs:
           PY
           sed -n '444,462p' tools/cpp/unix_cc_configure.bzl
 
+      - name: Patch Bazel JNI source for Android bionic strerror_r
+        working-directory: src
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/main/native/unix_jni_linux.cc")
+          text = path.read_text()
+          old = "#if !__GLIBC__ || (_POSIX_C_SOURCE >= 200112L && !_GNU_SOURCE)"
+          new = "#if (!__GLIBC__ && !defined(__BIONIC__)) || (_POSIX_C_SOURCE >= 200112L && !_GNU_SOURCE)"
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new))
+          PY
+          grep -n -A9 -B3 '__BIONIC__' src/main/native/unix_jni_linux.cc
+
       - name: Patch Bazel 6.3 bootstrap for JDK 17 module access
         working-directory: src
         run: |
