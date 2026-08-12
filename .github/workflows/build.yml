@@ -67,6 +67,13 @@ jobs:
           PY
           sed -n '444,462p' tools/cpp/unix_cc_configure.bzl
 
+      - name: Patch Bazel's pinned Abseil for Clang 21 constexpr rules
+        working-directory: src
+        run: |
+          python3 -c 'from pathlib import Path; p = Path("WORKSPACE"); text = p.read_text(); old = "dist_http_archive(\n    name = \\\"com_google_absl\\\",\n)"; new = "dist_http_archive(\n    name = \\\"com_google_absl\\\",\n    patches = [\\\"//:abseil-clang21-constexpr.patch\\\"],\n    patch_args = [\\\"-p1\\\"],\n)"; assert text.count(old) == 1; p.write_text(text.replace(old, new))'
+          cp ../patches/abseil-clang21-constexpr.patch .
+          sed -n '664,676p' WORKSPACE
+
       - name: Patch Bazel JNI source for Android bionic strerror_r
         working-directory: src
         run: |
@@ -102,12 +109,10 @@ jobs:
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
             --host_copt=-Wno-error=deprecated-builtins
-            --host_copt=-fexperimental-new-constant-interpreter
             --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --copt=-fPIC
             --copt=-Wno-error=deprecated-builtins
-            --copt=-fexperimental-new-constant-interpreter
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
