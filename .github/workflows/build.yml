@@ -39,6 +39,29 @@ jobs:
           test -f src/compile.sh
           test -d src/derived/src/java
 
+      - name: Register NDK headers in Bazel's local C++ toolchain
+        working-directory: src
+        env:
+          NDK_SYSROOT: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("tools/cpp/unix_cc_configure.bzl")
+          text = path.read_text()
+          marker = "    builtin_include_directories = _uniq(\n"
+          additions = (
+              "        [\n"
+              f"            {os.environ['NDK_SYSROOT']!r} + '/usr/include',\n"
+              f"            {os.environ['NDK_SYSROOT']!r} + '/usr/include/aarch64-linux-android',\n"
+              "        ] +\n"
+          )
+          assert text.count(marker) == 1
+          path.write_text(text.replace(marker, marker + additions))
+          PY
+          sed -n '444,462p' tools/cpp/unix_cc_configure.bzl
+
       - name: Patch Bazel 6.3 bootstrap for JDK 17 module access
         working-directory: src
         run: |
@@ -59,8 +82,6 @@ jobs:
             --host_javabase=@local_jdk//:jdk
             --copt=--target=aarch64-linux-android24
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
-            --copt=-isystem${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
-            --copt=-isystem${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/aarch64-linux-android
             --copt=-fPIE
             --linkopt=--target=aarch64-linux-android24
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
