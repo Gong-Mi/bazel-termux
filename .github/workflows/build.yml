@@ -59,6 +59,8 @@ jobs:
             --host_javabase=@local_jdk//:jdk
             --copt=--target=aarch64-linux-android24
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
+            --copt=-isystem${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
+            --copt=-isystem${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/aarch64-linux-android
             --copt=-fPIE
             --linkopt=--target=aarch64-linux-android24
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
