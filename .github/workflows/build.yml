@@ -42,7 +42,7 @@ jobs:
       - name: Patch Bazel 6.3 bootstrap for JDK 17 module access
         working-directory: src
         run: |
-          sed -i 's|--add-opens java.base/jdk.internal.misc=ALL-UNNAMED|--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED|' scripts/bootstrap/compile.sh
+          sed -i '/-Djava.util.logging.config.file=/a\      --add-opens java.base/java.lang=ALL-UNNAMED \\' scripts/bootstrap/compile.sh
           grep -n -A3 -B2 'java.base/java.lang' scripts/bootstrap/compile.sh
 
       - name: Bootstrap Android aarch64 Bazel
