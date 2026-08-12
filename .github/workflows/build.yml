@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       BAZEL_VERSION: 6.3.0
-      ANDROID_API: "24"
+      ANDROID_API: "28"
       ANDROID_ABI: aarch64-linux-android
     steps:
       - name: Install bootstrap dependencies
@@ -32,7 +32,7 @@ jobs:
           "$RUNNER_TEMP/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" --version
           printf 'int main(void) { return 0; }\n' > /tmp/ndk-driver-smoke.c
           "$RUNNER_TEMP/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" \
-            --target=aarch64-linux-android24 /tmp/ndk-driver-smoke.c -o /tmp/ndk-driver-smoke
+            --target=aarch64-linux-android${ANDROID_API} /tmp/ndk-driver-smoke.c -o /tmp/ndk-driver-smoke
           readelf -h /tmp/ndk-driver-smoke | grep -q AArch64
 
       - name: Download official Bazel distribution archive
@@ -100,10 +100,10 @@ jobs:
           STRIP: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
-            --copt=--target=aarch64-linux-android24
+            --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --copt=-fPIC
-            --linkopt=--target=aarch64-linux-android24
+            --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
             --linkopt=-llog
