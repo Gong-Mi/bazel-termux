@@ -98,6 +98,7 @@ jobs:
           AR: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           RANLIB: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
           STRIP: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+          BAZEL_CXXOPTS: -std=c++17
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
             --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
