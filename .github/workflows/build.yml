@@ -98,14 +98,16 @@ jobs:
           AR: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           RANLIB: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
           STRIP: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
-          BAZEL_CXXOPTS: -std=c++20 -fexperimental-new-constant-interpreter
+          BAZEL_CXXOPTS: -std=c++20
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
             --host_copt=-Wno-error=deprecated-builtins
+            --host_copt=-fexperimental-new-constant-interpreter
             --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --copt=-fPIC
             --copt=-Wno-error=deprecated-builtins
+            --copt=-fexperimental-new-constant-interpreter
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
