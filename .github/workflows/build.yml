@@ -70,7 +70,7 @@ jobs:
       - name: Patch Bazel's pinned Abseil for Clang 21 constexpr rules
         working-directory: src
         run: |
-          python3 -c 'from pathlib import Path; p=Path("WORKSPACE"); t=p.read_text(); q=chr(34); old="dist_http_archive(\\n    name = "+q+"com_google_absl"+q+",\\n)"; new="dist_http_archive(\\n    name = "+q+"com_google_absl"+q+",\\n    patches = ["+q+"//:abseil-clang21-constexpr.patch"+q+"],\\n    patch_args = ["+q+"-p1"+q+"],\\n)"; assert t.count(old)==1; p.write_text(t.replace(old,new))'
+          python3 -c 'from pathlib import Path; p=Path("WORKSPACE"); t=p.read_text(); q=chr(34); n=chr(10); old="dist_http_archive("+n+"    name = "+q+"com_google_absl"+q+","+n+")"; new="dist_http_archive("+n+"    name = "+q+"com_google_absl"+q+","+n+"    patches = ["+q+"//:abseil-clang21-constexpr.patch"+q+"],"+n+"    patch_args = ["+q+"-p1"+q+"],"+n+")"; assert t.count(old)==1; p.write_text(t.replace(old,new))'
           cp ../patches/abseil-clang21-constexpr.patch .
           sed -n '664,676p' WORKSPACE
 
