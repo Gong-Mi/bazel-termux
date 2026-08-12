@@ -50,18 +50,18 @@ jobs:
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
           BAZEL_WRKDIR: ${{ github.workspace }}/work
-          CC: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
-          CXX: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++
-          AR: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
-          RANLIB: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
-          STRIP: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+          CC: /usr/bin/clang
+          CXX: /usr/bin/clang++
+          AR: /usr/bin/llvm-ar
+          RANLIB: /usr/bin/llvm-ranlib
+          STRIP: /usr/bin/llvm-strip
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
-            --host_copt=--target=aarch64-linux-android24
-            --host_copt=-fPIE
-            --host_linkopt=--target=aarch64-linux-android24
-            --host_linkopt=-pie
-            --host_linkopt=-llog
+            --copt=--target=aarch64-linux-android24
+            --copt=-fPIE
+            --linkopt=--target=aarch64-linux-android24
+            --linkopt=-pie
+            --linkopt=-llog
         run: |
           set -o pipefail
           ./compile.sh 2>&1 | tee ../bootstrap.log
