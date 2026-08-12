@@ -64,6 +64,7 @@ jobs:
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
             --linkopt=-llog
+            --features=-parse_headers
         run: |
           set -o pipefail
           ./compile.sh 2>&1 | tee ../bootstrap.log
