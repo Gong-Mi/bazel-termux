@@ -101,9 +101,11 @@ jobs:
           BAZEL_CXXOPTS: -std=c++17
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
+            --host_copt=-Wno-error=deprecated-builtins
             --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --copt=-fPIC
+            --copt=-Wno-error=deprecated-builtins
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
