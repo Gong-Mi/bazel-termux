@@ -1,6 +1,6 @@
 --- a/absl/strings/internal/str_format/extension.h
 +++ b/absl/strings/internal/str_format/extension.h
-@@ -369,7 +369,8 @@
+@@ -371,6 +371,7 @@
  struct FormatConversionCharSetInternal {
  #define ABSL_INTERNAL_CHAR_SET_CASE(c)         \
    static constexpr FormatConversionCharSet c = \
