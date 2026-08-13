@@ -110,13 +110,14 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          path = Path("src/main/tools/BUILD")
-          lines = path.read_text().splitlines()
-          kept = [l for l in lines if '"-lrt",' not in l]
-          assert len(lines) - len(kept) == 2, (len(lines), len(kept))
-          path.write_text("\n".join(kept) + "\n")
+          for rel in ["src/main/tools/BUILD", "src/main/cpp/BUILD"]:
+              path = Path(rel)
+              lines = path.read_text().splitlines()
+              kept = [l for l in lines if '"-lrt",' not in l]
+              assert len(lines) - len(kept) == 2, (rel, len(lines), len(kept))
+              path.write_text("\n".join(kept) + "\n")
           PY
-          grep -n -B1 -A2 '"-lm"' src/main/tools/BUILD
+          grep -rn '"-lrt"' src/main/tools/BUILD src/main/cpp/BUILD || echo "no -lrt remaining"
 
       - name: Patch Bazel JNI source for Android bionic strerror_r
         working-directory: src
