@@ -93,7 +93,10 @@ jobs:
               name = "com_google_protobuf",
               patch_cmds = EXPORT_WORKSPACE_IN_BUILD_FILE,
               patch_cmds_win = EXPORT_WORKSPACE_IN_BUILD_FILE_WIN,
-              patches = ["//:protobuf-pthread.patch"],
+              patches = [
+                  "//third_party/protobuf:3.19.6.patch",
+                  "//:protobuf-pthread.patch",
+              ],
               patch_args = ["-p1"],
           )'''
           assert text.count(old) == 1
