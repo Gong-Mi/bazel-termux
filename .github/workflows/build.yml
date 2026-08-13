@@ -16,6 +16,8 @@ jobs:
       ANDROID_API: "28"
       ANDROID_ABI: aarch64-linux-android
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install bootstrap dependencies
         run: |
           sudo apt-get update
