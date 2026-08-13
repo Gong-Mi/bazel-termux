@@ -1,5 +1,5 @@
 diff --git a/absl/strings/internal/str_format/extension.h b/absl/strings/internal/str_format/extension.h
-index 55cbb56..4416d64 100644
+index 55cbb56..b814d06 100644
 --- a/absl/strings/internal/str_format/extension.h
 +++ b/absl/strings/internal/str_format/extension.h
 @@ -369,9 +369,10 @@ constexpr FormatConversionCharSet FormatConversionCharToConvValue(char conv) {
@@ -11,8 +11,8 @@ index 55cbb56..4416d64 100644
 -      FormatConversionCharToConvValue(#c[0]);
 +#define ABSL_INTERNAL_CHAR_SET_CASE(letter)    \
 +  static constexpr FormatConversionCharSet letter = \
-+      static_cast<FormatConversionCharSet>(FormatConversionCharToConvInt( \
-+          FormatConversionCharInternal::letter));
++      static_cast<FormatConversionCharSet>(1ULL << \
++          (1 + static_cast<uint8_t>(FormatConversionCharInternal::Enum::letter)));
    ABSL_INTERNAL_CONVERSION_CHARS_EXPAND_(ABSL_INTERNAL_CHAR_SET_CASE, )
  #undef ABSL_INTERNAL_CHAR_SET_CASE
  
