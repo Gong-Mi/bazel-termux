@@ -1,0 +1,12 @@
+diff --git a/BUILD b/BUILD
+index 1690d42..80de11a 100644
+--- a/BUILD
++++ b/BUILD
+@@ -137,7 +137,6 @@ LINK_OPTS = select({
+         "-ignore:4221",
+     ],
+     "//conditions:default": [
+-        "-lpthread",
+         "-lm",
+     ],
+ })

@@ -77,6 +77,50 @@ jobs:
           cp "${{ github.workspace }}/patches/abseil-randen-copts.patch" .
           sed -n '664,676p' WORKSPACE
 
+      - name: Patch Bazel's pinned protobuf for bionic pthread
+        working-directory: src
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("WORKSPACE")
+          text = path.read_text()
+          old = '''dist_http_archive(
+              name = "com_google_protobuf",
+              patch_cmds = EXPORT_WORKSPACE_IN_BUILD_FILE,
+              patch_cmds_win = EXPORT_WORKSPACE_IN_BUILD_FILE_WIN,
+          )'''
+          new = '''dist_http_archive(
+              name = "com_google_protobuf",
+              patch_cmds = EXPORT_WORKSPACE_IN_BUILD_FILE,
+              patch_cmds_win = EXPORT_WORKSPACE_IN_BUILD_FILE_WIN,
+              patches = ["//:protobuf-pthread.patch"],
+              patch_args = ["-p1"],
+          )'''
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new))
+          PY
+          cp "${{ github.workspace }}/patches/protobuf-pthread.patch" .
+          grep -n -A8 'com_google_protobuf' WORKSPACE | head -12
+
+      - name: Patch Bazel tools to drop bionic-absent -lrt
+        working-directory: src
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("src/main/tools/BUILD")
+          text = path.read_text()
+          old = '''        "//conditions:default": [
+              "-lm",
+              "-lrt",
+          ],'''
+          new = '''        "//conditions:default": [
+              "-lm",
+          ],'''
+          assert text.count(old) == 2, text.count(old)
+          path.write_text(text.replace(old, new))
+          PY
+          grep -n -B1 -A3 '"-lm"' src/main/tools/BUILD
+
       - name: Patch Bazel JNI source for Android bionic strerror_r
         working-directory: src
         run: |
