@@ -111,10 +111,12 @@ jobs:
           EXTRA_BAZEL_ARGS: >-
             --host_javabase=@local_jdk//:jdk
             --host_copt=-Wno-error=deprecated-builtins
+            --host_copt=-Wno-error=c23-extensions
             --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --copt=-fPIC
             --copt=-Wno-error=deprecated-builtins
+            --copt=-Wno-error=c23-extensions
             --copt=-Dgetservbyport_r(a,b,c,d,e,f)=getservbyport(a,b)
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
