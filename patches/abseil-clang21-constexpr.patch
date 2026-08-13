@@ -1,7 +1,16 @@
 diff --git a/absl/strings/internal/str_format/extension.h b/absl/strings/internal/str_format/extension.h
-index 55cbb56..b814d06 100644
+index 55cbb56..95fca63 100644
 --- a/absl/strings/internal/str_format/extension.h
 +++ b/absl/strings/internal/str_format/extension.h
+@@ -182,7 +182,7 @@ inline std::ostream& operator<<(std::ostream& os, Flags v) {
+ struct FormatConversionCharInternal {
+   FormatConversionCharInternal() = delete;
+ 
+- private:
++ public:
+   // clang-format off
+   enum class Enum : uint8_t {
+     c, s,                    // text
 @@ -369,9 +369,10 @@ constexpr FormatConversionCharSet FormatConversionCharToConvValue(char conv) {
  }
  
