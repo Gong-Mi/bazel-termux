@@ -1,8 +1,16 @@
 diff --git a/absl/strings/internal/str_format/extension.h b/absl/strings/internal/str_format/extension.h
-index 55cbb56..95fca63 100644
+index 55cbb56..e2d3686 100644
 --- a/absl/strings/internal/str_format/extension.h
 +++ b/absl/strings/internal/str_format/extension.h
-@@ -182,7 +182,7 @@ inline std::ostream& operator<<(std::ostream& os, Flags v) {
+@@ -19,6 +19,7 @@
+ #include <limits.h>
+ 
+ #include <cstddef>
++#include <cstdint>
+ #include <cstring>
+ #include <ostream>
+ 
+@@ -182,7 +183,7 @@ inline std::ostream& operator<<(std::ostream& os, Flags v) {
  struct FormatConversionCharInternal {
    FormatConversionCharInternal() = delete;
  
@@ -11,7 +19,7 @@ index 55cbb56..95fca63 100644
    // clang-format off
    enum class Enum : uint8_t {
      c, s,                    // text
-@@ -369,9 +369,10 @@ constexpr FormatConversionCharSet FormatConversionCharToConvValue(char conv) {
+@@ -369,9 +370,10 @@ constexpr FormatConversionCharSet FormatConversionCharToConvValue(char conv) {
  }
  
  struct FormatConversionCharSetInternal {
