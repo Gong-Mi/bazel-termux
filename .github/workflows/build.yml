@@ -98,6 +98,20 @@ jobs:
           sed -i '/-Djava.util.logging.config.file=/a\      --add-opens java.base/java.lang=ALL-UNNAMED \\' scripts/bootstrap/compile.sh
           grep -n -A3 -B2 'java.base/java.lang' scripts/bootstrap/compile.sh
 
+      - name: Patch Bazel process-tools for Android bionic wait3
+        working-directory: src
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("src/main/tools/process-tools.cc")
+          text = path.read_text()
+          old = "      err = wait3(&status, 0, rusage);"
+          new = "      err = wait4(-1, &status, 0, rusage);"
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new))
+          PY
+          grep -n 'wait4(-1, &status' src/main/tools/process-tools.cc
+
       - name: Bootstrap Android aarch64 Bazel
         working-directory: src
         env:
