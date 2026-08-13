@@ -108,18 +108,12 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           path = Path("src/main/tools/BUILD")
-          text = path.read_text()
-          old = '''        "//conditions:default": [
-              "-lm",
-              "-lrt",
-          ],'''
-          new = '''        "//conditions:default": [
-              "-lm",
-          ],'''
-          assert text.count(old) == 2, text.count(old)
-          path.write_text(text.replace(old, new))
+          lines = path.read_text().splitlines()
+          kept = [l for l in lines if '"-lrt",' not in l]
+          assert len(lines) - len(kept) == 2, (len(lines), len(kept))
+          path.write_text("\n".join(kept) + "\n")
           PY
-          grep -n -B1 -A3 '"-lm"' src/main/tools/BUILD
+          grep -n -B1 -A2 '"-lm"' src/main/tools/BUILD
 
       - name: Patch Bazel JNI source for Android bionic strerror_r
         working-directory: src
