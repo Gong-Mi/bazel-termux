@@ -197,7 +197,8 @@ jobs:
           readelf -d "$BIN" | tee elf-dynamic.txt
           readelf -h "$BIN" | grep -q 'AArch64'
           readelf -l "$BIN" | grep -q '/system/bin/linker64'
-          "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" --strip-unneeded "$BIN"
+          # Bazel's output is a self-extracting ELF + ZIP. llvm-strip truncates
+          # the appended ZIP payload, so preserve the launcher byte-for-byte.
           mkdir artifact
           cp "$BIN" artifact/bazel
           cp elf-header.txt elf-program-headers.txt elf-dynamic.txt artifact/
