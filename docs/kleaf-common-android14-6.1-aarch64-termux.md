@@ -107,26 +107,26 @@ step:
    `prebuilts/bazel/linux-x86_64/bazel`.
 5. Add an aarch64-Termux Bazel layout and solve its `libc++_shared.so` runtime
    dependency without relying on the interactive shell's `LD_LIBRARY_PATH`.
-6. Build or source an aarch64-Termux JDK and replace the fixed
+6. Verify the Termux system Clang/LLVM against the selected Kleaf toolchain
+   version and adapt only the toolchain registration/path; do not build or upload
+   a Clang prebuilt.
+7. Update Kleaf toolchain registration and all `linux-x86` labels needed to use
+   the system Clang while keeping the official toolchain semantics.
+8. Build or source aarch64-Termux JDK and replace the fixed
    `prebuilts/jdk/jdk11/linux-x86` server path.
-7. Build or source the aarch64-Termux Clang toolchain.
-8. Update `kleaf/BUILD.bazel`, `kleaf/workspace.bzl`, and toolchain registration
-   from `prebuilts/clang/host/linux-x86` to the aarch64-Termux toolchain.
-9. Update `kleaf/impl/kernel_toolchains.bzl` and all version labels that encode
-   `linux-x86`.
-10. Build or source aarch64-Termux clang-tools, including bindgen where required.
-11. Build or source aarch64-Termux kernel-build-tools (`bc`, `dtc`, `pahole`,
+9. Build or source aarch64-Termux clang-tools, including bindgen where required.
+10. Build or source aarch64-Termux kernel-build-tools (`bc`, `dtc`, `pahole`,
     `stg`, `stgdiff`, and the other tools selected by the manifest).
-12. Resolve the manifest's Linux host GCC project or prove that this branch does
+11. Resolve the manifest's Linux host GCC project or prove that this branch does
     not select it for the requested target.
-13. Resolve the manifest's NDK r23 path and distinguish target SDK inputs from
+12. Resolve the manifest's NDK r23 path and distinguish target SDK inputs from
     host-executable inputs.
-14. Replace or adapt `mkbootimg`, build-tools, and shell execution paths for
+13. Replace or adapt `mkbootimg`, build-tools, and shell execution paths for
     Termux/Bionic (`/bin/bash` is not a valid assumption).
-15. Run short launcher probes in order: `tools/bazel version`, Bazel server
+14. Run short launcher probes in order: `tools/bazel version`, Bazel server
     startup, Kleaf analysis, one host-tool action, and only then
     `//common:kernel_aarch64_dist`.
-16. Perform a real kernel dist build and separately verify the output artifacts.
+15. Perform a real kernel dist build and separately verify the output artifacts.
 
 ## Current first blocker
 
@@ -165,7 +165,7 @@ Linux host directory to an aarch64-Termux directory where appropriate.
 | `platform/prebuilts/build-tools` | One `prebuilts-build-tools-aarch64-termux` repository containing the general host tools and the `path/aarch64-termux` launcher layout | Yes | Python is only one member of this official tool group; the current standalone Python repository is a source/build boundary and must be assembled or consumed here |
 | `platform/prebuilts/bazel/linux-x86_64` | One `prebuilts-bazel-aarch64-termux` repository | Yes | Bazel launcher and its payload are a separate AOSP project; current artifact still needs libc++ runtime closure |
 | `platform/prebuilts/jdk/jdk11` | One `prebuilts-jdk11-aarch64-termux` repository | Yes | Kleaf hard-codes the JDK server path; `bazel_nojdk` does not remove this requirement |
-| `platform/prebuilts/clang/host/linux-x86` | One `prebuilts-clang-aarch64-termux` repository | Yes | Complete Clang/bin/headers/sysroot/toolchain registration must move together |
+| `platform/prebuilts/clang/host/linux-x86` | Use the Termux system Clang/LLVM for the first migration; do not create or upload an aarch64-Termux Clang prebuilt | No, deferred | The compiler is explicitly kept as a system dependency for now; only Kleaf toolchain registration/path compatibility and the required version/capability checks remain |
 | `platform/prebuilts/clang-tools` | One `prebuilts-clang-tools-aarch64-termux` repository | Yes | `bindgen` and related tools are referenced separately from the compiler |
 | `kernel/prebuilts/build-tools` | One `prebuilts-kernel-build-tools-aarch64-termux` repository | Yes | `stg`, `stgdiff`, `bc`, `dtc`, `pahole`, and imported libraries have their own Kleaf labels |
 | `platform/prebuilts/gcc/...` | One GCC host-tool repository, only if the selected branch/config actually uses it | Conditional | Do not build this before tracing the requested target's actions |
