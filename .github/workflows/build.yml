@@ -181,6 +181,7 @@ jobs:
             --host_javabase=@local_jdk//:jdk
             --host_copt=-Wno-error=deprecated-builtins
             --host_copt=-Wno-gnu-offsetof-extensions
+            --host_copt=-Wno-error=gnu-offsetof-extensions
             --host_per_file_copt=.*@-Wno-c23-extensions
             --host_features=-module_maps
             --features=-module_maps
