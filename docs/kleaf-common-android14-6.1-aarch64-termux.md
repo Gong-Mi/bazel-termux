@@ -161,6 +161,17 @@ The current state therefore has `repo init`, a standalone aarch64 Bazel, and a
 standalone aarch64 Python runtime; it does not yet have a runnable aarch64-Termux
 Kleaf host-toolchain closure.
 
+## Established GitHub Repositories for Migration
+
+| Official AOSP Project | Replacement GitHub Repository | Branch | Status |
+|---|---|---|---|
+| `kernel/build` | [Gong-Mi/kernel-build-termux](https://github.com/Gong-Mi/kernel-build-termux) | `common-android14-6.1-aarch64-termux` | Patched & Pushed (`099b3e5`) |
+| `platform/prebuilts/bazel/linux-x86_64` | [Gong-Mi/bazel-termux](https://github.com/Gong-Mi/bazel-termux) | `kleaf-common-android14-6.1-aarch64-termux` | PR #1 (`cfee3af`) |
+| `platform/prebuilts/clang/host/linux-x86` | [Gong-Mi/prebuilts-clang-aarch64-termux](https://github.com/Gong-Mi/prebuilts-clang-aarch64-termux) | `common-android14-6.1-aarch64-termux` | Patched & Pushed (`7b9ef94`) |
+| `platform/prebuilts/build-tools` | [Gong-Mi/prebuilts-build-tools-aarch64-termux](https://github.com/Gong-Mi/prebuilts-build-tools-aarch64-termux) | `main` | Created & Pushed |
+| `kernel/prebuilts/build-tools` | [Gong-Mi/prebuilts-kernel-build-tools-aarch64-termux](https://github.com/Gong-Mi/prebuilts-kernel-build-tools-aarch64-termux) | `common-android14-6.1-aarch64-termux` | Patched & Pushed (`1c03fb1`) |
+| `platform/external/python/cpython3` | [Gong-Mi/prebuilts-python-aarch64-termux](https://github.com/Gong-Mi/prebuilts-python-aarch64-termux) | `main` | CPython 3.13.7 Bionic Bundle |
+
 ## Repository boundary decision
 
 Do not create one repository per ELF. Preserve the AOSP manifest project
