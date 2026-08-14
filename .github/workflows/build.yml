@@ -181,6 +181,7 @@ jobs:
             --host_per_file_copt=.*@-Wno-c23-extensions
             --host_features=-module_maps
             --features=-module_maps
+            --action_env=ANDROID_NDK_HOME
             --copt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --copt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --copt=-fPIC
