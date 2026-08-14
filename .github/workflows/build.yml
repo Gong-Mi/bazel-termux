@@ -182,6 +182,7 @@ jobs:
             --host_copt=-Wno-error=deprecated-builtins
             --host_copt=-Wno-gnu-offsetof-extensions
             --host_copt=-Wno-error=gnu-offsetof-extensions
+            --host_copt=-Wno-error=pedantic
             --host_per_file_copt=.*@-Wno-c23-extensions
             --host_features=-module_maps
             --features=-module_maps
