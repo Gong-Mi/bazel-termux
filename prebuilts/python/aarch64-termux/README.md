@@ -20,18 +20,17 @@ python_3.14.6-1_aarch64.deb
 versioned-file plus stable-name convention used by AOSP prebuilts.
 
 The dependency names and the versions observed from the same Termux host are
-in `DEPS.lock`. The `.deb` is not self-contained: installing it requires the
-runtime dependency closure listed there. No unversioned `pkg install python`
-step is part of the build contract.
+in `DEPS.lock`. The `.deb` is retained only as a fixed official source
+artifact. It is not the runtime delivery format and must not be installed as
+part of the portable tool bundle.
 
-Installation is intentionally package-manager based:
+The final delivery must unpack the Python runtime into this repository's
+versioned bundle, collect its shared-library closure, and use relative runtime
+paths. It must run without `pkg install python`, `dpkg -i`, or an existing
+Termux Python installation.
 
-```sh
-dpkg -i prebuilts/python/aarch64-termux/python_3.14.6-1_aarch64.deb
-```
-
-If dependency closure verification shows that the host package set cannot be
-made reproducible, the next implementation is a Termux-official-script
-static/embedded Python build. Static linking is not assumed successful until
-its interpreter, `_ssl`, `_sqlite3`, `_bz2`, `_lzma`, `zlib`, and dynamic
-library closure have each been tested.
+If the dynamic closure cannot be made relocatable and reproducible, the
+implementation must switch to a Termux-official-script static/embedded Python
+build. Static linking is not assumed successful until its interpreter,
+`_ssl`, `_sqlite3`, `_bz2`, `_lzma`, `zlib`, and dynamic library closure have
+each been tested.
