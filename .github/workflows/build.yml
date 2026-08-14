@@ -156,6 +156,21 @@ jobs:
           PY
           grep -n 'wait4(-1, &status' src/main/tools/process-tools.cc
 
+      - name: Add Android logging only to target process-wrapper
+        working-directory: src
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("src/main/tools/BUILD")
+          text = path.read_text()
+          anchor = '''    name = "process-wrapper",'''
+          start = text.index(anchor)
+          pos = text.index('            "-lm",', start)
+          text = text[:pos] + '            "-llog",\n' + text[pos:]
+          path.write_text(text)
+          PY
+          sed -n '28,52p' src/main/tools/BUILD
+
       - name: Select host-vs-target compiler boundary
         run: |
           chmod 755 ci/dual-clang ci/dual-clang++
