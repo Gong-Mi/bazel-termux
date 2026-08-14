@@ -198,6 +198,7 @@ jobs:
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
+            --linkopt=-Wl,-rpath,'$ORIGIN/../lib':$ORIGIN
             --features=-parse_headers
         run: |
           set -o pipefail
