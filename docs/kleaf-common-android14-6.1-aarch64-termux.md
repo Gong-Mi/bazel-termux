@@ -153,3 +153,41 @@ tools/bazel run //common:kernel_aarch64_dist -- --destdir="$DIST_DIR"
 The current state therefore has `repo init`, a standalone aarch64 Bazel, and a
 standalone aarch64 Python runtime; it does not yet have a runnable aarch64-Termux
 Kleaf host-toolchain closure.
+
+## Repository boundary decision
+
+Do not create one repository per ELF. Preserve the AOSP manifest project
+boundaries, while changing the platform directory inside each project from a
+Linux host directory to an aarch64-Termux directory where appropriate.
+
+| Official manifest project | Aarch64-Termux replacement boundary | Required now? | Reason |
+|---|---|---:|---|
+| `platform/prebuilts/build-tools` | One `prebuilts-build-tools-aarch64-termux` repository containing the general host tools and the `path/aarch64-termux` launcher layout | Yes | Python is only one member of this official tool group; the current standalone Python repository is a source/build boundary and must be assembled or consumed here |
+| `platform/prebuilts/bazel/linux-x86_64` | One `prebuilts-bazel-aarch64-termux` repository | Yes | Bazel launcher and its payload are a separate AOSP project; current artifact still needs libc++ runtime closure |
+| `platform/prebuilts/jdk/jdk11` | One `prebuilts-jdk11-aarch64-termux` repository | Yes | Kleaf hard-codes the JDK server path; `bazel_nojdk` does not remove this requirement |
+| `platform/prebuilts/clang/host/linux-x86` | One `prebuilts-clang-aarch64-termux` repository | Yes | Complete Clang/bin/headers/sysroot/toolchain registration must move together |
+| `platform/prebuilts/clang-tools` | One `prebuilts-clang-tools-aarch64-termux` repository | Yes | `bindgen` and related tools are referenced separately from the compiler |
+| `kernel/prebuilts/build-tools` | One `prebuilts-kernel-build-tools-aarch64-termux` repository | Yes | `stg`, `stgdiff`, `bc`, `dtc`, `pahole`, and imported libraries have their own Kleaf labels |
+| `platform/prebuilts/gcc/...` | One GCC host-tool repository, only if the selected branch/config actually uses it | Conditional | Do not build this before tracing the requested target's actions |
+| `toolchain/prebuilts/ndk/r23` | One NDK/sysroot repository or an explicitly documented target-only substitute | Conditional | Separate target SDK input from host-executable tools |
+| `platform/system/tools/mkbootimg` | Source project patch/build, not a prebuilt repository | Conditional | It is a source project in the manifest, not an AOSP prebuilt tool project |
+| `kernel/build` | Source fork/patch or local manifest overlay | Yes | `bazel.sh`, `bazel.py`, workspace and toolchain labels contain Linux paths |
+| `prebuilts/rust` / Rust toolchain | One Rust prebuilt boundary if Rust is enabled by the target | Conditional | Current manifest does not list it, but Kleaf has conditional `prebuilts/rust/linux-x86` references |
+
+The official `linux-arm64` directories in AOSP `build-tools` and `clang-tools`
+do not satisfy this target: they are Linux/glibc host binaries, while this
+workspace runs on Android/Bionic. They are useful as structural references only.
+
+The first repository to build next should therefore be the combined
+`prebuilts-build-tools-aarch64-termux` boundary, not another isolated Python
+repository. The existing Python repository remains useful as the reproducible
+CPython source/build artifact, but the final Kleaf-facing layout should expose
+it under the official build-tools shape, for example:
+
+```text
+prebuilts/build-tools/
+├── path/aarch64-termux/python3
+└── aarch64-termux/
+    ├── bin/python3
+    └── lib/python3.13/
+```
