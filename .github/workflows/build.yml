@@ -156,6 +156,17 @@ jobs:
           PY
           grep -n 'wait4(-1, &status' src/main/tools/process-tools.cc
 
+      - name: Build and inject native aarch64 build-runfiles helper
+        run: |
+          set -eux
+          CLANG="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+          "$CLANG" --target=aarch64-linux-android${{ env.ANDROID_API }} \
+            --sysroot="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot" \
+            -std=c++17 -I. -Ihelper-tools \
+            helper-tools/build-runfiles.cc helper-tools/logging.cc \
+            -o src/main/tools/build-runfiles
+          file src/main/tools/build-runfiles
+
       - name: Select host-vs-target compiler boundary
         run: |
           chmod 755 ci/dual-clang ci/dual-clang++
