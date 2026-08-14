@@ -50,6 +50,7 @@ jobs:
         working-directory: src
         env:
           NDK_SYSROOT: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
+          NDK_CLANG_RESOURCE: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/21/include
         run: |
           python3 - <<'PY'
           import os
@@ -62,6 +63,7 @@ jobs:
               "        [\n"
               f"            {os.environ['NDK_SYSROOT']!r} + '/usr/include',\n"
               f"            {os.environ['NDK_SYSROOT']!r} + '/usr/include/aarch64-linux-android',\n"
+              f"            {os.environ['NDK_CLANG_RESOURCE']!r},\n"
               "        ] +\n"
           )
           assert text.count(marker) == 1
