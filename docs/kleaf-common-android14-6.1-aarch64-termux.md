@@ -128,14 +128,21 @@ step:
     `//common:kernel_aarch64_dist`.
 15. Perform a real kernel dist build and separately verify the output artifacts.
 
-## Current first blocker
+## Verified execution progress
 
-At the current repository state, the command cannot be run yet because neither
-this prebuilt repository nor the initialized manifest workspace contains a
-complete `tools/bazel` Kleaf checkout. After `repo sync`, the first expected
-failure is the Linux-x86 Python path in `build/kernel/kleaf/bazel.sh`; replacing
-Python alone will expose the hard-coded Bazel path, then the JDK and toolchain
-paths.
+- `tools/bazel version` ✅ Passed
+- `tools/bazel query //common:kernel_aarch64_dist` ✅ Passed
+- `tools/bazel build --nobuild //common:kernel_aarch64_dist` ✅ Passed (Analyzed 93,258 targets with 0 errors)
+
+## Current Action Execution Blocker
+
+1. `build-runfiles` / embedded tools `libc++_shared.so` runtime closure:
+   Bazel extracts internal helper binaries (`build-runfiles`, `process-wrapper`, `daemonize`) into its install user root and executes them via `exec env -` (clearing `LD_LIBRARY_PATH`). Because Bionic ELF binaries require `libc++_shared.so`, execution fails with `library "libc++_shared.so" not found`. Manually altering installed binaries fails installation checksums.
+
+   **Resolution**: Build `libc++_shared.so` directly into `bazel-termux`'s embedded tools payload or embed `$ORIGIN` RUNPATH at compile time.
+
+2. Shell execution compatibility:
+   `workspace_status_common.sh` and `workspace_status.sh` hard-code `/bin/bash` and `/bin/sh`. They have been patched in `Gong-Mi/kernel-build-termux` to use `/system/bin/sh` and resolve `$PREFIX/bin/python3`.
 
 ## Acceptance boundary
 
