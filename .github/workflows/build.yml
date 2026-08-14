@@ -184,6 +184,8 @@ jobs:
             --host_copt=-Wno-error=gnu-offsetof-extensions
             --host_copt=-Wno-error=pedantic
             --host_per_file_copt=.*@-Wno-c23-extensions
+            --host_per_file_copt=.*@-Wno-error=gnu-offsetof-extensions
+            --host_per_file_copt=.*@-Wno-error=pedantic
             --host_features=-module_maps
             --features=-module_maps
             --action_env=ANDROID_NDK_HOME
