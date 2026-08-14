@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+SYSTEM_CLANG="${HOST_CLANG:-clang}"
+target=0
+for arg in "$@"; do
+  case "$arg" in
+    --target=aarch64-linux-android*|--sysroot=*android-ndk*|--sysroot=*android*|--copt=--target=aarch64-linux-android*|--linkopt=--target=aarch64-linux-android*|--copt=--sysroot=*android-ndk*|--linkopt=--sysroot=*android-ndk*|--copt=--sysroot=*android*|--linkopt=--sysroot=*android*) target=1 ;;
+    @*)
+      f=${arg#@}
+      if [ -f "$f" ] && grep -Eq -- '(^|[[:space:]])(--target=aarch64-linux-android|--sysroot=[^[:space:]]*android|--copt=--target=aarch64-linux-android|--linkopt=--target=aarch64-linux-android|--copt=--sysroot=[^[:space:]]*android|--linkopt=--sysroot=[^[:space:]]*android)' "$f"; then target=1; fi
+      ;;
+  esac
+done
+if [ "$target" = 1 ]; then
+  NDK_CLANG="${ANDROID_NDK_HOME:?}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang"
+  exec "$NDK_CLANG" "$@"
+fi
+exec "$SYSTEM_CLANG" "$@"

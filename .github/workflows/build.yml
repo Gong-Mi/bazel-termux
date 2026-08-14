@@ -154,13 +154,23 @@ jobs:
           PY
           grep -n 'wait4(-1, &status' src/main/tools/process-tools.cc
 
+      - name: Select host-vs-target compiler boundary
+        run: |
+          chmod 755 ci/dual-clang ci/dual-clang++
+          sed -n '1,80p' ci/dual-clang
+          sed -n '1,80p' ci/dual-clang++
+
       - name: Bootstrap Android aarch64 Bazel
         working-directory: src
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
           BAZEL_WRKDIR: ${{ github.workspace }}/work
-          CC: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
-          CXX: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++
+          # Bazel invokes the same compiler entry point for host tools and
+          # Android targets. The dispatchers keep [for tool] host actions
+          # Linux-runnable, while target actions carrying --target/--sysroot
+          # use the NDK compiler.
+          CC: ${{ github.workspace }}/ci/dual-clang
+          CXX: ${{ github.workspace }}/ci/dual-clang++
           AR: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           RANLIB: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
           STRIP: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
@@ -180,7 +190,6 @@ jobs:
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
-            --linkopt=-llog
             --features=-parse_headers
         run: |
           set -o pipefail
