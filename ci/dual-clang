@@ -13,6 +13,15 @@ for arg in "$@"; do
 done
 if [ "$target" = 1 ]; then
   NDK_CLANG="${ANDROID_NDK_HOME:?}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang"
+  link=1
+  for arg in "$@"; do
+    case "$arg" in
+      -c|-S|-E) link=0 ;;
+    esac
+  done
+  if [ "$link" = 1 ]; then
+    set -- "$@" -llog
+  fi
   exec "$NDK_CLANG" "$@"
 fi
 exec "$SYSTEM_CLANG" "$@"
