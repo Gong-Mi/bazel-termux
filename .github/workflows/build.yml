@@ -159,6 +159,8 @@ jobs:
       - name: Build and inject native aarch64 build-runfiles helper
         run: |
           set -eux
+          mkdir -p src/main/tools
+          cp helper-tools/logging.h src/main/tools/
           CLANG="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
           "$CLANG" --target=aarch64-linux-android${{ env.ANDROID_API }} \
             --sysroot="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot" \
