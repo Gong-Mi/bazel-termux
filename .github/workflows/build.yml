@@ -156,6 +156,23 @@ jobs:
           PY
           grep -n 'wait4(-1, &status' src/main/tools/process-tools.cc
 
+      - name: Build and inject native aarch64 build-runfiles helper
+        run: |
+          set -eux
+          mkdir -p src/main/tools
+          cp helper-tools/logging.h src/main/tools/
+          CLANG="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+          SYSROOT="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+          STATIC_CXX="${SYSROOT}/usr/lib/aarch64-linux-android/libc++_static.a"
+          STATIC_CXXABI="${SYSROOT}/usr/lib/aarch64-linux-android/libc++abi.a"
+          "$CLANG" --target=aarch64-linux-android${{ env.ANDROID_API }} \
+            --sysroot="$SYSROOT" \
+            -std=c++17 -I. -Ihelper-tools \
+            helper-tools/build-runfiles.cc helper-tools/logging.cc \
+            "$STATIC_CXX" "$STATIC_CXXABI" \
+            -o src/main/tools/build-runfiles
+          file src/main/tools/build-runfiles
+
       - name: Select host-vs-target compiler boundary
         run: |
           chmod 755 ci/dual-clang ci/dual-clang++
@@ -198,6 +215,7 @@ jobs:
             --linkopt=--target=aarch64-linux-android${{ env.ANDROID_API }}
             --linkopt=--sysroot=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             --linkopt=-pie
+            --linkopt=-Wl,-rpath,'$ORIGIN/../lib':$ORIGIN
             --features=-parse_headers
         run: |
           set -o pipefail

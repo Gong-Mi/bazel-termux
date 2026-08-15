@@ -1,0 +1,60 @@
+diff --git a/gettop.sh b/gettop.sh
+index a32f4bc..c911372 100755
+--- a/gettop.sh
++++ b/gettop.sh
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/system/bin/sh
+ 
+ # Copyright (C) 2022 The Android Open Source Project
+ #
+@@ -23,7 +23,7 @@
+ # This is either ${ROOT_DIR}/build or ${ROOT_DIR}/build/kernel
+ parent_dir=$(dirname $(readlink -f $0))
+ 
+-if [[ $(basename ${parent_dir}) == "kernel" ]]; then
++if [ "$(basename "${parent_dir}")" = "kernel" ]; then
+   echo $(dirname $(dirname ${parent_dir}))
+ else
+   echo $(dirname ${parent_dir})
+diff --git a/kleaf/bazel.py b/kleaf/bazel.py
+index 2c6af2a..ff2ac89 100755
+--- a/kleaf/bazel.py
++++ b/kleaf/bazel.py
+@@ -81,7 +81,8 @@ class BazelWrapper(object):
+         self.root_dir = root_dir
+         self.env = env.copy()
+ 
+-        self.bazel_path = f"{self.root_dir}/{_BAZEL_REL_PATH}"
++        self.bazel_path = self.env.get(
++            "KLEAF_BAZEL", f"{self.root_dir}/{_BAZEL_REL_PATH}")
+ 
+         command_idx = None
+         for idx, arg in enumerate(bazel_args):
+@@ -303,7 +304,8 @@ class BazelWrapper(object):
+         # final_args:
+         # bazel [startup_options] [additional_startup_options] command [transformed_command_args] -- [target_patterns]
+ 
+-        bazel_jdk_path = f"{self.root_dir}/{_BAZEL_JDK_REL_PATH}"
++        bazel_jdk_path = self.env.get(
++            "KLEAF_JDK", f"{self.root_dir}/{_BAZEL_JDK_REL_PATH}")
+         final_args = [self.bazel_path] + self.transformed_startup_options
+ 
+         if not self.known_startup_options.help:
+diff --git a/kleaf/bazel.sh b/kleaf/bazel.sh
+index 7dcdf5f..e923140 100755
+--- a/kleaf/bazel.sh
++++ b/kleaf/bazel.sh
+@@ -1,4 +1,4 @@
+-#!/bin/bash -e
++#!/system/bin/sh
+ # Copyright (C) 2021 The Android Open Source Project
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+@@ -15,4 +15,5 @@
+ 
+ ROOT_DIR=$($(dirname $(dirname $(readlink -f "$0")))/gettop.sh)
+ 
+-exec "$ROOT_DIR"/prebuilts/build-tools/path/linux-x86/python3 $(dirname $(readlink -f "$0"))/bazel.py "$ROOT_DIR" "$@"
++PYTHON3=${KLEAF_PYTHON3:-"$ROOT_DIR/prebuilts/build-tools/path/linux-x86/python3"}
++exec "$PYTHON3" "$(dirname "$(readlink -f "$0")")/bazel.py" "$ROOT_DIR" "$@"
