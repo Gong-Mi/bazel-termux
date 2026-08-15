@@ -162,10 +162,14 @@ jobs:
           mkdir -p src/main/tools
           cp helper-tools/logging.h src/main/tools/
           CLANG="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+          SYSROOT="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+          STATIC_CXX="${SYSROOT}/usr/lib/aarch64-linux-android/libc++_static.a"
+          STATIC_CXXABI="${SYSROOT}/usr/lib/aarch64-linux-android/libc++abi.a"
           "$CLANG" --target=aarch64-linux-android${{ env.ANDROID_API }} \
-            --sysroot="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot" \
+            --sysroot="$SYSROOT" \
             -std=c++17 -I. -Ihelper-tools \
             helper-tools/build-runfiles.cc helper-tools/logging.cc \
+            "$STATIC_CXX" "$STATIC_CXXABI" \
             -o src/main/tools/build-runfiles
           file src/main/tools/build-runfiles
 
